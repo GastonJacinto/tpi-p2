@@ -1,7 +1,12 @@
 package main;
 
+import service.ProductService;
+
 public class Main {
+
     public static void main(String[] args) {
-        System.out.println(":)");
+        ProductService productService = new ProductService();
+        AppMenu appMenu = new AppMenu(productService);
+        appMenu.start();
     }
 }
