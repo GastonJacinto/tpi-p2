@@ -42,4 +42,5 @@ CREATE TABLE product (
 
     CONSTRAINT fk_product_barcode 
         FOREIGN KEY (bar_code_id) REFERENCES barcode(id)
-) ENGINE=InnoDB DEFAULT CHARSET=u
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
