@@ -6,7 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BarcodeTypeDao implements GenericDao<BarcodeType> {
+public class BarcodeTypeDao implements StringKeyDao<BarcodeType> {
 
     @Override
     public void create(BarcodeType bt, Connection conn) throws Exception {
@@ -23,23 +23,18 @@ public class BarcodeTypeDao implements GenericDao<BarcodeType> {
     }
 
     @Override
-    public BarcodeType read(Long id, Connection conn) throws Exception {
-        throw new UnsupportedOperationException("BarcodeType uses String PK, not Long.");
-    }
-
-    public BarcodeType readByCode(String code, Connection conn) throws Exception {
+    public BarcodeType readByKey(String code, Connection conn) throws Exception {
         String sql = "SELECT code, description FROM barcode_type WHERE code = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, code);
+            ResultSet rs = stmt.executeQuery();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return new BarcodeType(
-                            rs.getString("code"),
-                            rs.getString("description")
-                    );
-                }
+            if (rs.next()) {
+                return new BarcodeType(
+                        rs.getString("code"),
+                        rs.getString("description")
+                );
             }
         }
         return null;
@@ -80,11 +75,7 @@ public class BarcodeTypeDao implements GenericDao<BarcodeType> {
     }
 
     @Override
-    public void soft_delete(Long id, Connection conn) throws Exception {
-        throw new UnsupportedOperationException("BarcodeType has no deleted column.");
-    }
-
-    public void deleteByCode(String code, Connection conn) throws Exception {
+    public void deleteByKey(String code, Connection conn) throws Exception {
         String sql = "DELETE FROM barcode_type WHERE code = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
