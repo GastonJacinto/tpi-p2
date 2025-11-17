@@ -1,0 +1,12 @@
+# IntelliJ
+.idea/
+out/
+*.iml
+
+# OS
+.DS_Store
+
+# Java
+*.class
+*.jar
+target/
