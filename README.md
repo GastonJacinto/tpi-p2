@@ -53,7 +53,7 @@ Toda la interacción es por teclado.
 🔗 Agregar el enlace al video aquí
 
 ### Base de datos
-Crear la base de datos y configurar con los datos en el archivo {archivo de la db}
+Crear la base de datos y configurar con los datos en el archivo DatabaseConnection.java dentro de config
 
 👥 Integrantes
 
