@@ -15,72 +15,62 @@ public class ProductService {
         this.productDao = new ProductDao();
     }
 
-    // --------------------------
-    // CREATE
-    // --------------------------
     public void createProduct(Product p) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
-
-            productDao.create(p, conn);
-
-            conn.commit();
+            try {
+                productDao.create(p, conn);
+                conn.commit();
+            } catch (Exception ex) {
+                conn.rollback();
+                throw ex;
+            }
         } catch (Exception e) {
             throw new Exception("Error creating product: " + e.getMessage(), e);
         }
     }
 
-    // --------------------------
-    // READ by ID
-    // --------------------------
     public Product getProduct(Long id) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection()) {
-
             return productDao.read(id, conn);
-
         } catch (Exception e) {
             throw new Exception("Error reading product: " + e.getMessage(), e);
         }
     }
 
-    // --------------------------
-    // READ ALL
-    // --------------------------
     public List<Product> getAllProducts() throws Exception {
         try (Connection conn = DatabaseConnection.getConnection()) {
-
             return productDao.read_all(conn);
-
         } catch (Exception e) {
             throw new Exception("Error fetching products: " + e.getMessage(), e);
         }
     }
 
-    // --------------------------
-    // UPDATE
-    // --------------------------
     public void updateProduct(Product p) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
-
-            productDao.update(p, conn);
-
-            conn.commit();
+            try {
+                productDao.update(p, conn);
+                conn.commit();
+            } catch (Exception ex) {
+                conn.rollback();
+                throw ex;
+            }
         } catch (Exception e) {
             throw new Exception("Error updating product: " + e.getMessage(), e);
         }
     }
 
-    // --------------------------
-    // SOFT DELETE
-    // --------------------------
     public void deleteProduct(Long id) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
-
-            productDao.soft_delete(id, conn);
-
-            conn.commit();
+            try {
+                productDao.soft_delete(id, conn);
+                conn.commit();
+            } catch (Exception ex) {
+                conn.rollback();
+                throw ex;
+            }
         } catch (Exception e) {
             throw new Exception("Error deleting product: " + e.getMessage(), e);
         }
