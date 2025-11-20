@@ -22,9 +22,14 @@ public class ProductService {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
 
-            productDao.create(p, conn);
+            try {
+                productDao.create(p, conn);
+                conn.commit();
+            } catch (Exception ex) {
+                conn.rollback();
+                throw ex;
+            }
 
-            conn.commit();
         } catch (Exception e) {
             throw new Exception("Error creating product: " + e.getMessage(), e);
         }
@@ -63,9 +68,14 @@ public class ProductService {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
 
-            productDao.update(p, conn);
+            try {
+                productDao.update(p, conn);
+                conn.commit();
+            } catch (Exception ex) {
+                conn.rollback();
+                throw ex;
+            }
 
-            conn.commit();
         } catch (Exception e) {
             throw new Exception("Error updating product: " + e.getMessage(), e);
         }
@@ -78,9 +88,14 @@ public class ProductService {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
 
-            productDao.soft_delete(id, conn);
+            try {
+                productDao.soft_delete(id, conn);
+                conn.commit();
+            } catch (Exception ex) {
+                conn.rollback();
+                throw ex;
+            }
 
-            conn.commit();
         } catch (Exception e) {
             throw new Exception("Error deleting product: " + e.getMessage(), e);
         }
