@@ -1,278 +1,305 @@
 package app;
 
-import entities.Product;
-import service.ProductService;
+import entities.*;
+import service.*;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 
 public class AppMenu {
 
-    private final ProductService productService;
-    private final Scanner scanner;
+    private final Scanner scanner = new Scanner(System.in);
 
-    public AppMenu(ProductService productService) {
-        this.productService = productService;
-        this.scanner = new Scanner(System.in);
-    }
+    private final ProductService productService = new ProductService();
+    private final BarcodeService barcodeService = new BarcodeService();
+    private final BarcodeTypeService barcodeTypeService = new BarcodeTypeService();
 
     public void start() {
-        String option;
-        do {
-            showMainMenu();
-            option = scanner.nextLine().trim().toUpperCase();
+        while (true) {
+            System.out.println("\n==== MAIN MENU ====");
+            System.out.println("1) Products");
+            System.out.println("2) Barcodes");
+            System.out.println("3) Barcode Types");
+            System.out.println("0) Exit");
+            System.out.print("> ");
+
+            String option = scanner.nextLine();
 
             switch (option) {
-                case "1":
-                    createProduct();
-                    break;
-                case "2":
-                    showProductById();
-                    break;
-                case "3":
-                    listProducts();
-                    break;
-                case "4":
-                    updateProduct();
-                    break;
-                case "5":
-                    deleteProduct();
-                    break;
-                case "6":
-                    searchProductsByName();
-                    break;
-                case "X":
-                    System.out.println("Saliendo de la aplicación...");
-                    break;
-                default:
-                    System.out.println("Opción inválida. Intente nuevamente.");
-            }
-
-            System.out.println();
-
-        } while (!"X".equals(option));
-    }
-
-    private void showMainMenu() {
-        System.out.println("=====================================");
-        System.out.println("   MENÚ PRINCIPAL - PRODUCTOS");
-        System.out.println("=====================================");
-        System.out.println("1) Crear producto");
-        System.out.println("2) Buscar producto por ID");
-        System.out.println("3) Listar productos");
-        System.out.println("4) Actualizar producto");
-        System.out.println("5) Eliminar producto (baja lógica)");
-        System.out.println("6) Buscar productos por nombre");
-        System.out.println("X) Salir");
-        System.out.print("Seleccione una opción: ");
-    }
-
-    // ===== CRUD Producto (Entidad A) =====
-
-    private void createProduct() {
-        System.out.println("--- Crear producto ---");
-
-        System.out.print("Nombre: ");
-        String name = scanner.nextLine().trim();
-
-        System.out.print("Descripción: ");
-        String description = scanner.nextLine().trim();
-
-        BigDecimal price = readBigDecimal("Precio (> 0): ");
-        BigDecimal weight = readNullableBigDecimal("Peso (ENTER si no aplica): ");
-
-        try {
-            productService.createProduct(name, description, price, weight, null);
-            System.out.println("Producto creado correctamente.");
-        } catch (Exception e) {
-            System.out.println("Error al crear el producto: " + e.getMessage());
-        }
-    }
-
-    private void showProductById() {
-        System.out.println("--- Buscar producto por ID ---");
-        Long id = readLong("ID del producto: ");
-
-        try {
-            Product p = productService.findById(id);
-            if (p == null) {
-                System.out.println("No se encontró un producto con ID = " + id);
-            } else {
-                System.out.println(p);
-            }
-        } catch (Exception e) {
-            System.out.println("Error al buscar el producto: " + e.getMessage());
-        }
-    }
-
-    private void listProducts() {
-        System.out.println("--- Listar productos ---");
-        try {
-            List<Product> products = productService.findAll();
-            if (products.isEmpty()) {
-                System.out.println("No hay productos para mostrar.");
-            } else {
-                products.forEach(System.out::println);
-            }
-        } catch (Exception e) {
-            System.out.println("Error al listar productos: " + e.getMessage());
-        }
-    }
-
-    private void updateProduct() {
-        System.out.println("--- Actualizar producto ---");
-        Long id = readLong("ID del producto a actualizar: ");
-
-        try {
-            Product existing = productService.findById(id);
-            if (existing == null) {
-                System.out.println("No existe un producto con ese ID.");
-                return;
-            }
-
-            System.out.println("Producto actual:");
-            System.out.println(existing);
-
-            System.out.print("Nuevo nombre (ENTER para mantener '" + existing.getName() + "'): ");
-            String name = scanner.nextLine().trim();
-            if (name.isEmpty()) {
-                name = existing.getName();
-            }
-
-            System.out.print("Nueva descripción (ENTER para mantener): ");
-            String description = scanner.nextLine().trim();
-            if (description.isEmpty()) {
-                description = existing.getDescription();
-            }
-
-            BigDecimal price = readBigDecimalWithDefault(
-                    "Nuevo precio (ENTER para mantener " + existing.getPrice() + "): ",
-                    existing.getPrice()
-            );
-
-            BigDecimal weight = readNullableBigDecimalWithDefault(
-                    "Nuevo peso (ENTER para mantener " + existing.getWeight() + "): ",
-                    existing.getWeight()
-            );
-
-            productService.updateProduct(
-                    id, name, description, price, weight, existing.getBarCodeId()
-            );
-            System.out.println("Producto actualizado correctamente.");
-
-        } catch (Exception e) {
-            System.out.println("Error al actualizar el producto: " + e.getMessage());
-        }
-    }
-
-    private void deleteProduct() {
-        System.out.println("--- Eliminar producto (baja lógica) ---");
-        Long id = readLong("ID del producto a eliminar: ");
-
-        try {
-            productService.deleteProduct(id);
-            System.out.println("Producto eliminado (baja lógica) correctamente.");
-        } catch (Exception e) {
-            System.out.println("Error al eliminar el producto: " + e.getMessage());
-        }
-    }
-
-    private void searchProductsByName() {
-        System.out.println("--- Buscar productos por nombre ---");
-        System.out.print("Texto a buscar en el nombre: ");
-        String term = scanner.nextLine().trim();
-
-        try {
-            List<Product> results = productService.findByName(term);
-            if (results.isEmpty()) {
-                System.out.println("No se encontraron productos con ese criterio.");
-            } else {
-                results.forEach(System.out::println);
-            }
-        } catch (Exception e) {
-            System.out.println("Error en la búsqueda: " + e.getMessage());
-        }
-    }
-
-    // ===== Helpers de lectura =====
-
-    private Long readLong(String message) {
-        while (true) {
-            System.out.print(message);
-            String input = scanner.nextLine().trim();
-            try {
-                return Long.parseLong(input);
-            } catch (NumberFormatException e) {
-                System.out.println("Valor numérico inválido. Intente nuevamente.");
-            }
-        }
-    }
-
-    private BigDecimal readBigDecimal(String message) {
-        while (true) {
-            System.out.print(message);
-            String input = scanner.nextLine().trim();
-            try {
-                BigDecimal value = new BigDecimal(input);
-                if (value.compareTo(BigDecimal.ZERO) <= 0) {
-                    System.out.println("El valor debe ser mayor a 0.");
-                } else {
-                    return value;
+                case "1" -> productMenu();
+                case "2" -> barcodeMenu();
+                case "3" -> barcodeTypeMenu();
+                case "0" -> {
+                    System.out.println("Bye!");
+                    return;
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Valor decimal inválido. Intente nuevamente.");
+                default -> System.out.println("Invalid option.");
             }
         }
     }
 
-    private BigDecimal readNullableBigDecimal(String message) {
-        while (true) {
-            System.out.print(message);
-            String input = scanner.nextLine().trim();
-            if (input.isEmpty()) {
-                return null;
+    // ==========================================
+    // PRODUCT MENU
+    // ==========================================
+    private void productMenu() {
+        System.out.println("\n=== PRODUCT MENU ===");
+        System.out.println("1) Create");
+        System.out.println("2) Read by ID");
+        System.out.println("3) Read All");
+        System.out.println("4) Update");
+        System.out.println("5) Delete");
+        System.out.print("> ");
+
+        String opt = scanner.nextLine();
+
+        try {
+            switch (opt) {
+                case "1" -> createProduct();
+                case "2" -> readProduct();
+                case "3" -> listProducts();
+                case "4" -> updateProduct();
+                case "5" -> deleteProduct();
+                default -> System.out.println("Invalid option");
             }
-            try {
-                return new BigDecimal(input);
-            } catch (NumberFormatException e) {
-                System.out.println("Valor decimal inválido. Intente nuevamente o presione ENTER para omitir.");
-            }
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
         }
     }
 
-    private BigDecimal readBigDecimalWithDefault(String message, BigDecimal defaultValue) {
-        while (true) {
-            System.out.print(message);
-            String input = scanner.nextLine().trim();
-            if (input.isEmpty()) {
-                return defaultValue;
+    private void createProduct() throws Exception {
+        System.out.print("Name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Brand: ");
+        String brand = scanner.nextLine();
+
+        System.out.print("Category: ");
+        String category = scanner.nextLine();
+
+        System.out.print("Price: ");
+        double price = Double.parseDouble(scanner.nextLine());
+
+        System.out.print("Weight: ");
+        double weight = Double.parseDouble(scanner.nextLine());
+
+        System.out.print("Barcode ID (nullable): ");
+        String bc = scanner.nextLine();
+        Long barcodeId = bc.isBlank() ? null : Long.parseLong(bc);
+
+        Product p = new Product(null, false, name, brand, category, price, weight, barcodeId);
+
+        productService.createProduct(p);
+        System.out.println("Product created.");
+    }
+
+    private void readProduct() throws Exception {
+        System.out.print("ID: ");
+        Long id = Long.parseLong(scanner.nextLine());
+
+        Product p = productService.getProduct(id);
+
+        System.out.println(p != null ? p : "Not found.");
+    }
+
+    private void listProducts() throws Exception {
+        List<Product> list = productService.getAllProducts();
+        list.forEach(System.out::println);
+    }
+
+    private void updateProduct() throws Exception {
+        System.out.print("ID: ");
+        Long id = Long.parseLong(scanner.nextLine());
+
+        Product p = productService.getProduct(id);
+        if (p == null) {
+            System.out.println("Product not found.");
+            return;
+        }
+
+        System.out.print("New name (" + p.getName() + "): ");
+        p.setName(scanner.nextLine());
+
+        System.out.print("New price (" + p.getPrice() + "): ");
+        p.setPrice(Double.parseDouble(scanner.nextLine()));
+
+        productService.updateProduct(p);
+        System.out.println("Updated.");
+    }
+
+    private void deleteProduct() throws Exception {
+        System.out.print("ID: ");
+        Long id = Long.parseLong(scanner.nextLine());
+
+        productService.deleteProduct(id);
+        System.out.println("Deleted.");
+    }
+
+    // ==========================================
+    // BARCODE MENU
+    // ==========================================
+    private void barcodeMenu() {
+        System.out.println("\n=== BARCODE MENU ===");
+        System.out.println("1) Create");
+        System.out.println("2) Read by ID");
+        System.out.println("3) Read All");
+        System.out.println("4) Update");
+        System.out.println("5) Delete");
+        System.out.print("> ");
+
+        String opt = scanner.nextLine();
+
+        try {
+            switch (opt) {
+                case "1" -> createBarcode();
+                case "2" -> readBarcode();
+                case "3" -> listBarcodes();
+                case "4" -> updateBarcode();
+                case "5" -> deleteBarcode();
+                default -> System.out.println("Invalid option");
             }
-            try {
-                BigDecimal value = new BigDecimal(input);
-                if (value.compareTo(BigDecimal.ZERO) <= 0) {
-                    System.out.println("El valor debe ser mayor a 0.");
-                } else {
-                    return value;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Valor decimal inválido. Intente nuevamente.");
-            }
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
         }
     }
 
-    private BigDecimal readNullableBigDecimalWithDefault(String message, BigDecimal defaultValue) {
-        while (true) {
-            System.out.print(message);
-            String input = scanner.nextLine().trim();
-            if (input.isEmpty()) {
-                return defaultValue;
-            }
-            try {
-                return new BigDecimal(input);
-            } catch (NumberFormatException e) {
-                System.out.println("Valor decimal inválido. Intente nuevamente o presione ENTER para mantener el valor actual.");
-            }
+    private void createBarcode() throws Exception {
+        System.out.print("Type code: ");
+        String type = scanner.nextLine();
+
+        System.out.print("Value: ");
+        String value = scanner.nextLine();
+
+        System.out.print("Metadata: ");
+        String metadata = scanner.nextLine();
+
+        Barcode b = new Barcode(
+                null,
+                false,
+                type,
+                value,
+                LocalDate.now(),
+                metadata
+        );
+
+        barcodeService.createBarcode(b);
+        System.out.println("Barcode created.");
+    }
+
+    private void readBarcode() throws Exception {
+        System.out.print("ID: ");
+        Long id = Long.parseLong(scanner.nextLine());
+
+        Barcode b = barcodeService.getBarcode(id);
+        System.out.println(b != null ? b : "Not found.");
+    }
+
+    private void listBarcodes() throws Exception {
+        List<Barcode> list = barcodeService.getAllBarcodes();
+        list.forEach(System.out::println);
+    }
+
+    private void updateBarcode() throws Exception {
+        System.out.print("ID: ");
+        Long id = Long.parseLong(scanner.nextLine());
+
+        Barcode b = barcodeService.getBarcode(id);
+        if (b == null) {
+            System.out.println("Barcode not found.");
+            return;
         }
+
+        System.out.print("New metadata (" + b.getMetadata() + "): ");
+        b.setMetadata(scanner.nextLine());
+
+        barcodeService.updateBarcode(b);
+        System.out.println("Updated.");
+    }
+
+    private void deleteBarcode() throws Exception {
+        System.out.print("ID: ");
+        Long id = Long.parseLong(scanner.nextLine());
+
+        barcodeService.deleteBarcode(id);
+        System.out.println("Deleted.");
+    }
+
+    // ==========================================
+    // BARCODE TYPE MENU
+    // ==========================================
+    private void barcodeTypeMenu() {
+        System.out.println("\n=== BARCODE TYPE MENU ===");
+        System.out.println("1) Create");
+        System.out.println("2) Read by Code");
+        System.out.println("3) Read All");
+        System.out.println("4) Update");
+        System.out.println("5) Delete");
+        System.out.print("> ");
+
+        String opt = scanner.nextLine();
+
+        try {
+            switch (opt) {
+                case "1" -> createBarcodeType();
+                case "2" -> readBarcodeType();
+                case "3" -> listBarcodeTypes();
+                case "4" -> updateBarcodeType();
+                case "5" -> deleteBarcodeType();
+                default -> System.out.println("Invalid option");
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+    }
+
+    private void createBarcodeType() throws Exception {
+        System.out.print("Code: ");
+        String code = scanner.nextLine();
+
+        System.out.print("Description: ");
+        String desc = scanner.nextLine();
+
+        BarcodeType bt = new BarcodeType(code, desc);
+
+        barcodeTypeService.createBarcodeType(bt);
+        System.out.println("Barcode Type created.");
+    }
+
+    private void readBarcodeType() throws Exception {
+        System.out.print("Code: ");
+        String code = scanner.nextLine();
+
+        BarcodeType bt = barcodeTypeService.getBarcodeType(code);
+        System.out.println(bt != null ? bt : "Not found.");
+    }
+
+    private void listBarcodeTypes() throws Exception {
+        List<BarcodeType> list = barcodeTypeService.getAllBarcodeTypes();
+        list.forEach(System.out::println);
+    }
+
+    private void updateBarcodeType() throws Exception {
+        System.out.print("Code: ");
+        String code = scanner.nextLine();
+
+        BarcodeType bt = barcodeTypeService.getBarcodeType(code);
+        if (bt == null) {
+            System.out.println("Not found");
+            return;
+        }
+
+        System.out.print("New description (" + bt.getDescription() + "): ");
+        bt.setDescription(scanner.nextLine());
+
+        barcodeTypeService.updateBarcodeType(bt);
+        System.out.println("Updated.");
+    }
+
+    private void deleteBarcodeType() throws Exception {
+        System.out.print("Code: ");
+        String code = scanner.nextLine();
+
+        barcodeTypeService.deleteBarcodeType(code);
+        System.out.println("Deleted.");
     }
 }
