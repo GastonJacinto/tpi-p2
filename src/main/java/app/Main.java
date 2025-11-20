@@ -1,6 +1,6 @@
 package app;
 
-import app.ui.AppMenu;
+import app.AppMenu;
 
 public class Main {
     public static void main(String[] args) {
