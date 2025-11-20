@@ -19,8 +19,14 @@ public class BarcodeTypeService {
     public void createBarcodeType(BarcodeType type) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
-            dao.create(type, conn);
-            conn.commit();
+
+            try {
+                dao.create(type, conn);
+                conn.commit();
+            } catch (Exception ex) {
+                conn.rollback();
+                throw ex;
+            }
         }
     }
 
@@ -42,8 +48,14 @@ public class BarcodeTypeService {
     public void updateBarcodeType(BarcodeType type) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
-            dao.update(type, conn);
-            conn.commit();
+
+            try {
+                dao.update(type, conn);
+                conn.commit();
+            } catch (Exception ex) {
+                conn.rollback();
+                throw ex;
+            }
         }
     }
 
@@ -51,8 +63,14 @@ public class BarcodeTypeService {
     public void deleteBarcodeType(String code) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
-            dao.deleteByKey(code, conn);
-            conn.commit();
+
+            try {
+                dao.deleteByKey(code, conn);
+                conn.commit();
+            } catch (Exception ex) {
+                conn.rollback();
+                throw ex;
+            }
         }
     }
 }
