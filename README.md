@@ -62,6 +62,7 @@ Toda la interacción es por teclado.
 
 ### Base de datos
 Crear la base de datos y configurar los datos en el archivo DatabaseConnection.java dentro de config
+Se entrega un archivo .sql que contiene la creacion de las tablas, y del schema, se deja un nombre pro defecto definido (tpip2), en caso de tener un usuario/pass distinto de root/root colocar las correctas.
 
 👥 Integrantes
 ```
