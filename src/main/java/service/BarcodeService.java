@@ -19,8 +19,14 @@ public class BarcodeService {
     public void createBarcode(Barcode b) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
-            dao.create(b, conn);
-            conn.commit();
+
+            try {
+                dao.create(b, conn);
+                conn.commit();
+            } catch (Exception ex) {
+                conn.rollback();
+                throw ex;
+            }
         }
     }
 
@@ -42,8 +48,14 @@ public class BarcodeService {
     public void updateBarcode(Barcode b) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
-            dao.update(b, conn);
-            conn.commit();
+
+            try {
+                dao.update(b, conn);
+                conn.commit();
+            } catch (Exception ex) {
+                conn.rollback();
+                throw ex;
+            }
         }
     }
 
@@ -51,8 +63,14 @@ public class BarcodeService {
     public void deleteBarcode(Long id) throws Exception {
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
-            dao.soft_delete(id, conn);
-            conn.commit();
+
+            try {
+                dao.soft_delete(id, conn);
+                conn.commit();
+            } catch (Exception ex) {
+                conn.rollback();
+                throw ex;
+            }
         }
     }
 }
