@@ -123,6 +123,15 @@ public class AppMenu {
         System.out.print("New price (" + p.getPrice() + "): ");
         p.setPrice(Double.parseDouble(scanner.nextLine()));
 
+        System.out.print("New brand (" + p.getBrand() + "): ");
+        p.setBrand(String.valueOf(scanner.nextLine()));
+
+        System.out.print("New category (" + p.getCategory() + "): ");
+        p.setCategory(String.valueOf(scanner.nextLine()));
+
+        System.out.print("New barcode id (" + (p.getBar_code_id() != null ? p.getBar_code_id() : "null") + "): ");
+        p.setBar_code_id(Long.valueOf(scanner.nextLine()));
+
         productService.updateProduct(p);
         System.out.println("Updated.");
     }

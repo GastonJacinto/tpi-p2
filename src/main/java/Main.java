@@ -1,5 +1,3 @@
-package app;
-
 import app.AppMenu;
 
 public class Main {

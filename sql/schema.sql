@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS tpip2;
+USE tpip2;
+
 CREATE TABLE barcode_type (
     code VARCHAR(10) NOT NULL,
     description VARCHAR(50) NOT NULL,
