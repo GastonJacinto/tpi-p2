@@ -1,4 +1,4 @@
-package app.ui;
+package app;
 
 import entities.*;
 import service.*;
