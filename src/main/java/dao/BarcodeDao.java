@@ -46,7 +46,7 @@ public class BarcodeDao implements GenericDao<Barcode> {
         String sql = """
             SELECT id, deleted, type_code, value, assigned_at, metadata
             FROM barcode
-            WHERE id = ? AND deleted = 0
+            WHERE id = ?
         """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
