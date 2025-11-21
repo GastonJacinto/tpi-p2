@@ -47,7 +47,7 @@ public class ProductDao implements GenericDao<Product> {
         String sql = """
             SELECT id, deleted, name, brand, category, price, weight, bar_code_id
             FROM product
-            WHERE id = ? AND deleted = 0
+            WHERE id = ?
         """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
